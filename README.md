@@ -2,19 +2,19 @@
 
 ```mermaid
 sequenceDiagram
-    participant Client
+    participant ESP_Device
     participant API_TR
-    participant Database_TR
     participant Auth_TR
+    participant Database_TR
 
-    Client->>API_TR: HTTP Request to api.vmmaker.com.tr/v1/[istekkonrolü]
-    API_TR->>Auth_TR: Validate JWT/Token
+    ESP_Device->>API_TR: HTTP/MQTT Request to api-tr.vmmaker.com/v1/[istekkonrolü]
+    API_TR->>Auth_TR: Validate API Key
     Auth_TR-->>API_TR: Validation Result
     alt Success
-        API_TR->>Database_TR: Query [istekkonrolü] data
-        Database_TR-->>API_TR: Data Response
-        API_TR-->>Client: Success Response with Data
+        API_TR->>Database_TR: Process [istekkonrolü] request
+        Database_TR-->>API_TR: Processed Data
+        API_TR-->>ESP_Device: Command/Data Response
     else Failure
-        API_TR-->>Client: Error Response (401/403)
+        API_TR-->>ESP_Device: Error Response (401/403)
     end
 ```
