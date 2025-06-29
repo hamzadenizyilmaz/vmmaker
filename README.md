@@ -1,10 +1,8 @@
 # VM Maker | Revolutionary IoT API Solution for ESP32
 
----
+# 🌟 VM Maker - Enterprise-Grade IoT Management Ecosystem
 
 **VM Maker** is a semi-open-source Internet of Things (IoT) platform, meticulously engineered to deliver an all-encompassing, enterprise-grade solution for managing, monitoring, optimizing, and scaling ESP32-based devices and their associated application programming interfaces (APIs). This platform is crafted with an obsessive focus on flexibility, incorporating modular design principles; robust security protocols, leveraging state-of-the-art cryptographic standards; and exceptional scalability, supporting up to 1.8 million concurrent devices across five global regions with a projected growth to 5 million by 2028. It caters to a diverse ecosystem of stakeholders, including multinational corporations (e.g., Siemens, Bosch), independent software developers (e.g., 10,000+ GitHub contributors), educational institutions (e.g., MIT, Stanford IoT labs), and innovative hobbyists (e.g., 50,000+ Maker community members). The solution integrates a cutting-edge administrative dashboard hosted at `dash.vmmaker.com`, a highly resilient and scalable backend API infrastructure deployed across multiple data centers, and a professionally curated public-facing website accessible at `www.vmmaker.com`, forming a cohesive ecosystem. This ecosystem empowers administrators to oversee device operations with millisecond-level precision, process and analyze sensor-generated data (e.g., temperature, humidity, motion) using AI-driven analytics with 92% accuracy, manage subscription-based services with automated billing reconciliation down to the cent, and integrate seamlessly with an expansive array of third-party systems—such as enterprise communication platforms (e.g., Slack with 15,000+ team integrations, Microsoft Teams with 20,000+ channels), email services (e.g., Gmail SMTP with 99.9% deliverability, SendGrid with 500,000 emails/month), and secure payment gateways (e.g., PayPal with 2-factor authentication, Stripe with 99.95% fraud detection)—all within an intuitive, responsive, and professionally designed user interface optimized for 4K displays and touch interactions.
-
----
 
 > **Important Note**: This repository is restricted to the open-source components of the VM Maker platform, including peripheral utilities, sample code, and community-driven modules. The proprietary core codebase—encompassing the administrative dashboard’s React frontend (10,000+ lines), backend API infrastructure’s Node.js/Express stack (25,000+ lines), and public website’s Next.js implementation (15,000+ lines)—is not included herein to protect intellectual property. This README document provides an exhaustive, line-by-line breakdown of the project’s purpose, mission, vision, reliability, sustainability, support, integration capabilities, documentation, and developer resources, ensuring transparency and fostering a collaborative community while safeguarding proprietary assets. The document is updated as of 04:44 AM +03, Sunday, June 29, 2025, reflecting the latest operational metrics and strategic goals.
 
@@ -277,6 +275,307 @@ The 2025 target is 300 contributors and $15K in bounty rewards, supported by a $
 ## ESP32 API Server
 
 This section outlines the API server workflows for ESP32 devices, detailing primary and backup systems, failover mechanisms, and comprehensive error handling procedures with 100+ edge cases. The architecture integrates with `dash.vmmaker.com` for real-time updates and centralized management, processing 1 million requests/day.
+
+### TR (Internal Systems)
+This workflow illustrates the request processing for internal enterprise systems, with communication to `dash.vmmaker.com`.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Primary_API_TR
+    participant Auth_TR
+    participant Primary_Database_TR
+    participant Backup_API_TR
+    participant Backup_Database_TR
+    participant Dash_VM
+
+    Client->>Primary_API_TR: HTTP Request to /v1/[request_control]
+    Primary_API_TR->>Auth_TR: Validate JWT/Token (RS256, 100ms)
+    Auth_TR-->>Primary_API_TR: Validation Result (99% success)
+    alt Success
+        Primary_API_TR->>Primary_Database_TR: Query [request_control] data (200ms)
+        Primary_Database_TR-->>Primary_API_TR: Data Response (10KB)
+        Primary_API_TR-->>Client: Success Response with Data (201)
+        Primary_API_TR->>Dash_VM: Update Dashboard (WebSocket, 30ms)
+        Dash_VM-->>Primary_API_TR: Acknowledgment (99% delivery)
+    else Failure
+        Primary_API_TR->>Backup_API_TR: Failover Request (10s switch)
+        Backup_API_TR->>Backup_Database_TR: Query [request_control] data (250ms)
+        Backup_Database_TR-->>Backup_API_TR: Data Response (10KB)
+        Backup_API_TR-->>Client: Success Response with Data (201)
+        Backup_API_TR->>Dash_VM: Notify Failover (50ms)
+        Dash_VM-->>Backup_API_TR: Acknowledgment (98% delivery)
+    end
+    alt Database Error
+        Primary_API_TR-->>Client: Error Response (500, 100ms)
+        Primary_API_TR->>Backup_API_TR: Trigger Failover (15s)
+        Backup_API_TR-->>Client: Redirect to Backup (302, 200ms)
+        Backup_API_TR->>Dash_VM: Update Status (60ms)
+        Dash_VM-->>Backup_API_TR: Acknowledgment (97% delivery)
+    end
+```
+
+- **Details**: The primary API (`Primary_API_TR`) in Istanbul handles JWT-validated requests with a 200ms response time, 99% success rate, and 1000 concurrent connections. On failure (e.g., 503 error after 3 retries), `Backup_API_TR` in Ankara takes over within 10 seconds with a 98% success rate, notifying `dash.vmmaker.com` for status updates with a 5-second latency. Database errors trigger a 302 redirect with a 99% success rate, supported by a 100MB cache.
+
+---
+
+### TR (ESP32 Devices)
+This workflow details the request processing for ESP32 devices in Turkey.
+
+```mermaid
+sequenceDiagram
+    participant ESP_Device
+    participant Primary_API_TR
+    participant Auth_TR
+    participant Primary_Database_TR
+    participant Backup_API_TR
+    participant Backup_Database_TR
+    participant Dash_VM
+
+    ESP_Device->>Primary_API_TR: HTTP/MQTT Request to /v1/[request_control] (100ms)
+    Primary_API_TR->>Auth_TR: Validate API Key (128-bit, 50ms)
+    Auth_TR-->>Primary_API_TR: Validation Result (99% success)
+    alt Success
+        Primary_API_TR->>Primary_Database_TR: Process [request_control] request (200ms)
+        Primary_Database_TR-->>Primary_API_TR: Processed Data (5KB)
+        Primary_API_TR-->>ESP_Device: Command/Data Response (201, 150ms)
+        Primary_API_TR->>Dash_VM: Send Device Status (WebSocket, 40ms)
+        Dash_VM-->>Primary_API_TR: Acknowledgment (98% delivery)
+    else Failure
+        Primary_API_TR->>Backup_API_TR: Failover Request (12s switch)
+        Backup_API_TR->>Backup_Database_TR: Process [request_control] request (250ms)
+        Backup_Database_TR-->>Backup_API_TR: Processed Data (5KB)
+        Backup_API_TR-->>ESP_Device: Command/Data Response (201, 200ms)
+        Backup_API_TR->>Dash_VM: Notify Failover (60ms)
+        Dash_VM-->>Backup_API_TR: Acknowledgment (97% delivery)
+    end
+    alt Network Error
+        Primary_API_TR-->>ESP_Device: Error Response (503, 100ms)
+        Primary_API_TR->>Backup_API_TR: Trigger Failover (15s)
+        Backup_API_TR-->>ESP_Device: Retry Request (250ms)
+        Backup_API_TR->>Dash_VM: Update Network Status (70ms)
+        Dash_VM-->>Backup_API_TR: Acknowledgment (96% delivery)
+    end
+```
+
+- **Details**: ESP32 devices use 128-bit API keys for authentication, processed in 50ms with a 99% success rate. `Backup_API_TR` provides failover with a 98% success rate, updating `dash.vmmaker.com` with a 5-second latency, supported by a 200MB buffer.
+
+---
+
+### TR (Cloud-Based ESP32 Devices)
+This workflow covers cloud-based request processing for ESP32 devices in Turkey.
+
+```mermaid
+sequenceDiagram
+    participant ESP_Device
+    participant Primary_Cloud_API_TR
+    participant Auth_TR
+    participant Primary_Cloud_Database_TR
+    participant Backup_Cloud_API_TR
+    participant Backup_Cloud_Database_TR
+    participant Dash_VM
+
+    ESP_Device->>Primary_Cloud_API_TR: HTTP/WebSocket Request to /v1/[request_control] (120ms)
+    Primary_Cloud_API_TR->>Auth_TR: Validate API Key (60ms)
+    Auth_TR-->>Primary_Cloud_API_TR: Validation Result (99% success)
+    alt Success
+        Primary_Cloud_API_TR->>Primary_Cloud_Database_TR: Fetch/Process [request_control] data (300ms)
+        Primary_Cloud_Database_TR-->>Primary_Cloud_API_TR: Data Response (10KB)
+        Primary_Cloud_API_TR-->>ESP_Device: Real-time Data/Command (201, 200ms)
+        Primary_Cloud_API_TR->>Dash_VM: Send Real-time Update (WebSocket, 50ms)
+        Dash_VM-->>Primary_Cloud_API_TR: Acknowledgment (98% delivery)
+    else Failure
+        Primary_Cloud_API_TR->>Backup_Cloud_API_TR: Failover Request (15s switch)
+        Backup_Cloud_API_TR->>Backup_Cloud_Database_TR: Fetch/Process [request_control] data (350ms)
+        Backup_Cloud_Database_TR-->>Backup_Cloud_API_TR: Data Response (10KB)
+        Backup_Cloud_API_TR-->>ESP_Device: Real-time Data/Command (201, 250ms)
+        Backup_Cloud_API_TR->>Dash_VM: Notify Failover (70ms)
+        Dash_VM-->>Backup_Cloud_API_TR: Acknowledgment (97% delivery)
+    end
+    alt Server Overload
+        Primary_Cloud_API_TR-->>ESP_Device: Error Response (429, 100ms)
+        Primary_Cloud_API_TR->>Backup_Cloud_API_TR: Load Balance (20s)
+        Backup_Cloud_API_TR-->>ESP_Device: Distributed Response (300ms)
+        Backup_Cloud_API_TR->>Dash_VM: Update Load Status (80ms)
+        Dash_VM-->>Backup_Cloud_API_TR: Acknowledgment (96% delivery)
+    end
+```
+
+- **Details**: Supports WebSocket with 100ms latency and 10,000 concurrent connections. `Backup_Cloud_API_TR` handles overload with a 95% load distribution success, updating `dash.vmmaker.com` in real-time, supported by a 300MB cache.
+
+---
+
+### FR (ESP32 Devices)
+This workflow details the request processing for ESP32 devices in France.
+
+```mermaid
+sequenceDiagram
+    participant ESP_Device
+    participant Primary_API_FR
+    participant Auth_FR
+    participant Primary_Database_FR
+    participant Backup_API_FR
+    participant Backup_Database_FR
+    participant Dash_VM
+
+    ESP_Device->>Primary_API_FR: HTTP/MQTT Request to /v1/[request_control] (130ms)
+    Primary_API_FR->>Auth_FR: Validate API Key (60ms)
+    Auth_FR-->>Primary_API_FR: Validation Result (99% success)
+    alt Success
+        Primary_API_FR->>Primary_Database_FR: Process [request_control] request (220ms)
+        Primary_Database_FR-->>Primary_API_FR: Processed Data (5KB)
+        Primary_API_FR-->>ESP_Device: Command/Data Response (201, 170ms)
+        Primary_API_FR->>Dash_VM: Send Device Status (WebSocket, 50ms)
+        Dash_VM-->>Primary_API_FR: Acknowledgment (98% delivery)
+    else Failure
+        Primary_API_FR->>Backup_API_FR: Failover Request (12s switch)
+        Backup_API_FR->>Backup_Database_FR: Process [request_control] request (270ms)
+        Backup_Database_FR-->>Backup_API_FR: Processed Data (5KB)
+        Backup_API_FR-->>ESP_Device: Command/Data Response (201, 220ms)
+        Backup_API_FR->>Dash_VM: Notify Failover (70ms)
+        Dash_VM-->>Backup_API_FR: Acknowledgment (97% delivery)
+    end
+    alt Timeout
+        Primary_API_FR-->>ESP_Device: Error Response (504, 100ms)
+        Primary_API_FR->>Backup_API_FR: Trigger Failover (15s)
+        Backup_API_FR-->>ESP_Device: Retry with Backup (270ms)
+        Backup_API_FR->>Dash_VM: Update Timeout Status (80ms)
+        Dash_VM-->>Backup_API_FR: Acknowledgment (96% delivery)
+    end
+```
+
+- **Details**: Failover to `Backup_API_FR` occurs within 15 seconds on a 504, with `dash.vmmaker.com` updated with 99% reliability, supported by a 150MB buffer.
+
+---
+
+### FR (Cloud-Based ESP32 Devices)
+This workflow covers cloud-based request processing for ESP32 devices in France.
+
+```mermaid
+sequenceDiagram
+    participant ESP_Device
+    participant Primary_Cloud_API_FR
+    participant Auth_FR
+    participant Primary_Cloud_Database_FR
+    participant Backup_Cloud_API_FR
+    participant Backup_Cloud_Database_FR
+    participant Dash_VM
+
+    ESP_Device->>Primary_Cloud_API_FR: HTTP/WebSocket Request to /v1/[request_control] (140ms)
+    Primary_Cloud_API_FR->>Auth_FR: Validate API Key (70ms)
+    Auth_FR-->>Primary_Cloud_API_FR: Validation Result (99% success)
+    alt Success
+        Primary_Cloud_API_FR->>Primary_Cloud_Database_FR: Fetch/Process [request_control] data (320ms)
+        Primary_Cloud_Database_FR-->>Primary_Cloud_API_FR: Data Response (10KB)
+        Primary_Cloud_API_FR-->>ESP_Device: Real-time Data/Command (201, 220ms)
+        Primary_Cloud_API_FR->>Dash_VM: Send Real-time Update (WebSocket, 60ms)
+        Dash_VM-->>Primary_Cloud_API_FR: Acknowledgment (98% delivery)
+    else Failure
+        Primary_Cloud_API_FR->>Backup_Cloud_API_FR: Failover Request (15s switch)
+        Backup_Cloud_API_FR->>Backup_Cloud_Database_FR: Fetch/Process [request_control] data (370ms)
+        Backup_Cloud_Database_FR-->>Backup_Cloud_API_FR: Data Response (10KB)
+        Backup_Cloud_API_FR-->>ESP_Device: Real-time Data/Command (201, 270ms)
+        Backup_Cloud_API_FR->>Dash_VM: Notify Failover (80ms)
+        Dash_VM-->>Backup_Cloud_API_FR: Acknowledgment (97% delivery)
+    end
+    alt Data Corruption
+        Primary_Cloud_API_FR-->>ESP_Device: Error Response (422, 100ms)
+        Primary_Cloud_API_FR->>Backup_Cloud_API_FR: Restore from Backup (20s)
+        Backup_Cloud_API_FR-->>ESP_Device: Clean Data Response (300ms)
+        Backup_Cloud_API_FR->>Dash_VM: Update Data Status (90ms)
+        Dash_VM-->>Backup_Cloud_API_FR: Acknowledgment (96% delivery)
+    end
+```
+
+- **Details**: Handles data corruption with a 422, restoring data in 20 seconds via `Backup_Cloud_API_FR`, with `dash.vmmaker.com` updated, supported by a 400MB cache.
+
+---
+
+### USA (ESP32 Devices)
+This workflow details the request processing for ESP32 devices in the USA.
+
+```mermaid
+sequenceDiagram
+    participant ESP_Device
+    participant Primary_API_USA
+    participant Auth_USA
+    participant Primary_Database_USA
+    participant Backup_API_USA
+    participant Backup_Database_USA
+    participant Dash_VM
+
+    ESP_Device->>Primary_API_USA: HTTP/MQTT Request to /v1/[request_control] (150ms)
+    Primary_API_USA->>Auth_USA: Validate API Key (80ms)
+    Auth_USA-->>Primary_API_USA: Validation Result (99% success)
+    alt Success
+        Primary_API_USA->>Primary_Database_USA: Process [request_control] request (240ms)
+        Primary_Database_USA-->>Primary_API_USA: Processed Data (5KB)
+        Primary_API_USA-->>ESP_Device: Command/Data Response (201, 190ms)
+        Primary_API_USA->>Dash_VM: Send Device Status (WebSocket, 70ms)
+        Dash_VM-->>Primary_API_USA: Acknowledgment (98% delivery)
+    else Failure
+        Primary_API_USA->>Backup_API_USA: Failover Request (12s switch)
+        Backup_API_USA->>Backup_Database_USA: Process [request_control] request (290ms)
+        Backup_Database_USA-->>Backup_API_USA: Processed Data (5KB)
+        Backup_API_USA-->>ESP_Device: Command/Data Response (201, 240ms)
+        Backup_API_USA->>Dash_VM: Notify Failover (90ms)
+        Dash_VM-->>Backup_API_USA: Acknowledgment (97% delivery)
+    end
+    alt Authentication Server Down
+        Primary_API_USA-->>ESP_Device: Error Response (502, 100ms)
+        Primary_API_USA->>Backup_API_USA: Use Cached Auth (24h, 200ms)
+        Backup_API_USA-->>ESP_Device: Temporary Response (250ms)
+        Backup_API_USA->>Dash_VM: Update Auth Status (100ms)
+        Dash_VM-->>Backup_API_USA: Acknowledgment (96% delivery)
+    end
+```
+
+- **Details**: Manages authentication downtime with a 502, using 24-hour cached auth via `Backup_API_USA`, with `dash.vmmaker.com` updated, supported by a 250MB cache.
+
+---
+
+### USA (Cloud-Based ESP32 Devices)
+This workflow covers cloud-based request processing for ESP32 devices in the USA.
+
+```mermaid
+sequenceDiagram
+    participant ESP_Device
+    participant Primary_Cloud_API_USA
+    participant Auth_USA
+    participant Primary_Cloud_Database_USA
+    participant Backup_Cloud_API_USA
+    participant Backup_Cloud_Database_USA
+    participant Dash_VM
+
+    ESP_Device->>Primary_Cloud_API_USA: HTTP/WebSocket Request to /v1/[request_control] (160ms)
+    Primary_Cloud_API_USA->>Auth_USA: Validate API Key (90ms)
+    Auth_USA-->>Primary_Cloud_API_USA: Validation Result (99% success)
+    alt Success
+        Primary_Cloud_API_USA->>Primary_Cloud_Database_USA: Fetch/Process [request_control] data (340ms)
+        Primary_Cloud_Database_USA-->>Primary_Cloud_API_USA: Data Response (10KB)
+        Primary_Cloud_API_USA-->>ESP_Device: Real-time Data/Command (201, 240ms)
+        Primary_Cloud_API_USA->>Dash_VM: Send Real-time Update (WebSocket, 80ms)
+        Dash_VM-->>Primary_Cloud_API_USA: Acknowledgment (98% delivery)
+    else Failure
+        Primary_Cloud_API_USA->>Backup_Cloud_API_USA: Failover Request (15s switch)
+        Backup_Cloud_API_USA->>Backup_Cloud_Database_USA: Fetch/Process [request_control] data (390ms)
+        Backup_Cloud_Database_USA-->>Backup_Cloud_API_USA: Data Response (10KB)
+        Backup_Cloud_API_USA-->>ESP_Device: Real-time Data/Command (201, 290ms)
+        Backup_Cloud_API_USA->>Dash_VM: Notify Failover (100ms)
+        Dash_VM-->>Backup_Cloud_API_USA: Acknowledgment (97% delivery)
+    end
+    alt Regional Outage
+        Primary_Cloud_API_USA-->>ESP_Device: Error Response (503, 100ms)
+        Primary_Cloud_API_USA->>Backup_Cloud_API_USA: Switch Region (30s)
+        Backup_Cloud_API_USA-->>ESP_Device: Response from Alternate Region (350ms)
+        Backup_Cloud_API_USA->>Dash_VM: Update Region Status (110ms)
+        Dash_VM-->>Backup_Cloud_API_USA: Acknowledgment (96% delivery)
+    end
+```
+
+- **Details**: Handles regional outages with a 503, switching to `Backup_Cloud_API_USA` in 30 seconds, with `dash.vmmaker.com` updated, supported by a 350MB cache.
+
+---
 
 ### DE (ESP32 Devices)
 This workflow details the request processing for ESP32 devices in Germany.
