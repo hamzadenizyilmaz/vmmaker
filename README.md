@@ -1,7 +1,5 @@
 # VM Maker | Revolutionary IoT API Solution for ESP32
 
-![VM Maker Logo](https://vmmaker.com/github/img/vmmaker.png)
-
 ```mermaid
 sequenceDiagram
     participant Client
