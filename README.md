@@ -254,19 +254,21 @@ The 2025 goal is 15,000 document accesses, supported by a $250K documentation bu
 
 ## 👨‍💻 Developers
 
-VM Maker fosters a vibrant developer community with 15,000+ members, 200+ resources, and $1M in incentives, managed by a $300K dev program.
+VM Maker nurtures a growing developer ecosystem focused on IoT and ESP32 development, supported by a dedicated team of 3 core maintainers and a community of 200 active members.
 
-### Developer Details
-| **Area**                  | **Description**                                                                                     | **Statistical Data**                  | **Supporting Report**                  | **Source**                  |
-|---------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------|---------------------------------------|-----------------------------|
-| **Contribution Guidelines**| Provide a 100-page guide on pull requests (50+ rules), code standards (e.g., PEP 8, 100+ checks), and review processes (5 stages). | 175 contributors, 300+ PRs, 95% acceptance rate. | Contribution Activity Report, Q2 2025 (200 pages, 300 logs) | GitHub Contribution Stats, 2025|
-| **Developer Tools**       | Offer CLI tools (100+ commands), SDKs (Python, JS, 500+ APIs), and IDE plugins (VS Code, IntelliJ, 200+ extensions) for rapid development. | 5000 downloads, 80% adoption, 1000+ active users. | Tool Usage Report, Q1 2025 (180 pages, 5000 logs) | JetBrains Marketplace, 2025 |
-| **Hackathons**            | Host quarterly hackathons with $10K prizes, attracting 500+ participants (100 teams) and 50 mentors. | 3 events, 600 submissions, 95% participation rate. | Hackathon Impact Report, Q2 2025 (220 pages, 600 submissions) | Devpost Analytics, 2025    |
-| **Bug Bounty**            | Run a program with $50K reward pool for critical vulnerabilities, 100+ submissions, and $5K paid.    | 15 bugs fixed, $5K paid out, 98% resolution rate. | Bug Bounty Results, Q1 2025 (200 pages, 100 submissions) | HackerOne Leaderboard, 2025|
-| **Mentorship Program**    | Pair 50 mentors with 200 mentees for 6-month projects on IoT and ESP32, with 100+ deliverables.     | 90% retention, 100 projects, 95% success rate. | Mentorship Success Report, Q2 2025 (250 pages, 200 profiles) | Internal Mentorship Data, 2025|
-| **Developer Portal**      | Launch a portal with 100+ tutorials, 50 forums, and 10 webinars/month for 1000+ active users.       | 5000 visits, 90% engagement, 200+ posts. | Portal Usage Report, Q1 2025 (180 pages, 5000 logs) | Dev.to Community, 2025      |
+### Developer Highlights
 
-The 2025 target is 300 contributors and $15K in bounty rewards, supported by a $400K developer fund, 20 dev advocates, and 200+ community events (Source: VM Maker Dev Program, 2025).
+| Area                   | Description                                                                 | Community Data       |
+|------------------------|-----------------------------------------------------------------------------|----------------------|
+| Contribution Guidelines| Comprehensive guides for pull requests, code standards, and review processes| 50+ merged PRs       |
+| Developer Tools        | CLI tools, SDKs (Python/JS), and IDE plugins for seamless integration       | 3 core integrations  |
+| Hackathons            | Regular coding challenges with mentorship opportunities                     | 2 annual events      |
+| Bug Reporting         | Structured process for identifying and resolving technical issues           | 30+ resolved reports |
+| Mentorship            | Peer-to-peer learning program for IoT development                           | 15 active mentees    |
+| Developer Resources   | Technical documentation, tutorials, and community forums                   | 50+ shared resources |
+
+
+*Maintained by the VM Maker core team at [dev.vmmaker.com](https://dev.vmmaker.com)*
 
 ---
 
@@ -630,7 +632,7 @@ This table outlines the regional distribution of VM Maker’s API servers, datab
 | **Germany (DE)** | Frankfurt           | Munich               | Frankfurt           | Munich             | 300,000              | 29              | 99.95         | 8                        |
 | **Singapore (SG)** | Singapore          | Kuala Lumpur         | Singapore           | Kuala Lumpur       | 100,000              | 35              | 99.94         | 5                        |
 
-- **Details**: The topology supports 1.8 million devices with a combined throughput of 50MB/s, achieving an average latency of 30ms and 99.96% uptime across regions. Each region features a primary and backup setup with geo-redundant failover, synchronized every 5 minutes, and monitored with 100+ metrics (Source: VM Maker Infrastructure Report, Q2 2025).
+- **Details**: The topology supports 1.8 million devices with a combined throughput of 50MB/s, achieving an average latency of 30ms and 99.96% uptime across regions. Each region features a primary and backup setup with geo-redundant failover, synchronized every 5 minutes, and monitored with 100+ metrics.
 
 ---
 
@@ -638,10 +640,21 @@ This table outlines the regional distribution of VM Maker’s API servers, datab
 
 VM Maker acknowledges the invaluable support of its sponsors, who contribute funding, technology, and expertise to drive the platform’s growth and innovation.
 
-- **Siemens**: Provides $2M annually for R&D, contributing industrial IoT expertise and 50+ engineers, supporting 200+ factory integrations (Source: Siemens Partnership Agreement, 2025).
-- **Bosch**: Donates $1.5M and advanced sensor technology, enabling 300+ device prototypes with 99% reliability (Source: Bosch Collaboration Report, 2025).
-- **MIT IoT Lab**: Offers $500K and academic resources, training 1000+ students with 95% project completion (Source: MIT Partnership Data, 2025).
-- **GitHub**: Supplies $300K and infrastructure credits, hosting 10,000+ repositories with 98% uptime (Source: GitHub Sponsorship Program, 2025).
-- **Maker Community Fund**: Contributes $200K, supporting 50,000+ hobbyists with 90% satisfaction (Source: Maker Faire Sponsorship, 2025).
+- **Fırst Bilişim**: A Turkish IT solutions company providing local infrastructure and software development support. [www.firstbilisim.com](https://www.firstbilisim.com)  
+- **Hostibu**: A Turkish IT solutions company specializing in local infrastructure and software development support. [www.hostibu.com](https://www.hostibu.com/)  
+- **Espressif**: Creator of the ESP32 chipset delivering core hardware technology and technical expertise. [www.espressif.com](https://www.espressif.com)  
+- **Robo90**: Robotics and automation specialist collaborating on advanced device automation features. [www.robo90.com](https://www.robo90.com)  
+- **Hosting Telekom**: A Turkish IT solutions company supporting local infrastructure and software development. [www.hostingtelekom.com](https://www.hostingtelekom.com)  
+- **PCBWay**: Leading PCB manufacturing service producing custom circuit boards for ESP32-based devices. [www.pcbway.com](https://www.pcbway.com)  
+- **Avnet**: Global technology solutions provider offering electronic components and hardware integration support. [www.avnet.com](https://www.avnet.com)  
+- **Polyture**: 3D printing technology firm enabling physical prototyping for VM Maker devices. [www.polyture3d.com](https://www.polyture3d.com)  
+- **Monte Lua**: 3D printing specialist supporting physical prototype development. [www.montelua.com](https://www.montelua.com)  
+- **Elecrow**: Provider of electronic modules and development boards enhancing prototyping capabilities. [www.elecrow.com](https://www.elecrow.com)
 
-Total sponsorship funding exceeds $4.5M in 2025, driving a 30% increase in development capacity and 200+ new features (Source: VM Maker Sponsorship Impact Report, Q2 2025).
+---
+
+🌐 **Official Websites**: [www.vmmaker.com](https://www.vmmaker.com)  
+📧 **Contact**: info@vmmaker.com
+📧 **Sponsor**: marketing@vmmaker.com  
+📧 **Career**: career@vmmaker.com
+© 2023-2025 VM Maker - Empowering the Future of IoT
